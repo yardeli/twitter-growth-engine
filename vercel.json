@@ -2,20 +2,5 @@
   "buildCommand": "pip install -r requirements.txt",
   "env": {
     "PYTHONIOENCODING": "utf-8"
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/handler"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/dashboard.html"
-    }
-  ],
-  "functions": {
-    "api/handler.py": {
-      "maxDuration": 30
-    }
   }
 }
