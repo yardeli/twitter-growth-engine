@@ -64,7 +64,7 @@ class TwitterDataCollector:
         
         conn.commit()
         conn.close()
-        print(f"✅ Database initialized at {self.db_path}")
+        print(f"Database initialized at {self.db_path}")
     
     def log_tweet(self, author, text, likes, retweets, replies, impressions=0, url="", posted_at=None):
         """Log a tweet to database"""

@@ -83,4 +83,4 @@ ANALYSIS_MODEL = "gpt-4-turbo"
 POSTS_PER_DAY = 2
 POST_INTERVAL_HOURS = 8
 
-print("✅ Twitter Growth Engine configured")
+# Configuration loaded
