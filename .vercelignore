@@ -1,0 +1,5 @@
+twitter_data.db
+.git
+__pycache__
+*.pyc
+.gitignore
