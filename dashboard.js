@@ -110,6 +110,7 @@ async function loadIdeas() {
                 <div class="idea-actions">
                     <button class="btn-post" onclick="postIdea(${idea.id}, '${idea.content.replace(/'/g, "\\'")}')">📤 Post</button>
                     <button class="btn-copy" onclick="copyToClipboard('${idea.content.replace(/'/g, "\\'")}')">📋 Copy</button>
+                    <button class="btn-delete" onclick="deleteIdea(${idea.id}, '${idea.title.replace(/'/g, "\\'")}')">🗑️ Delete</button>
                 </div>
             </div>
         `).join('');
@@ -315,6 +316,25 @@ function copyToClipboard(text) {
     }).catch(() => {
         showError('Failed to copy');
     });
+}
+
+// Delete an idea
+async function deleteIdea(ideaId, title) {
+    if (confirm(`Delete "${title}"? This cannot be undone.`)) {
+        try {
+            const response = await fetch(`${API_BASE}/ideas/${ideaId}`, { method: 'DELETE' });
+            
+            if (response.ok) {
+                showSuccess(`Deleted: "${title}"`);
+                loadIdeas();
+            } else {
+                showError('Failed to delete idea');
+            }
+        } catch (error) {
+            console.error('Error deleting idea:', error);
+            showError('Failed to delete idea');
+        }
+    }
 }
 
 // Modal management

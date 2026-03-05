@@ -132,6 +132,18 @@ def score_idea(idea_id):
     else:
         return jsonify({"error": "Idea not found"}), 404
 
+@app.route('/api/ideas/<int:idea_id>', methods=['DELETE'])
+def delete_idea(idea_id):
+    """Delete an idea"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute('DELETE FROM post_ideas WHERE id = ?', (idea_id,))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({"status": "success", "message": f"Idea {idea_id} deleted"})
+
 @app.route('/api/health', methods=['GET'])
 def health():
     """Health check"""
