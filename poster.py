@@ -22,66 +22,64 @@ class TwitterPoster:
     def post_idea(self, idea_id, idea_content):
         """Post an idea to Twitter"""
         if not self.browser:
-            return {
-                "status": "error",
-                "message": "Browser tool not configured. Use browser automation to post."
-            }
+            return {"status": "error", "message": "Browser tool not configured."}
         
         try:
-            # Navigate to compose
-            self.browser.open("https://x.com/compose/post")
+            page = self.browser.get_page()
+            
+            print(f"🚀 Navigating to compose...")
+            page.goto("https://x.com/compose/post")
+            
+            # 1. Wait for the textbox to actually exist
+            page.wait_for_selector('div[role="textbox"]', timeout=15000)
+            time.sleep(3) # Extra buffer for React to load
+            
+            # 2. FORCE FOCUS: Two clicks to ensure focus is captured
+            print("🎯 Targeting textbox...")
+            page.click('div[role="textbox"]')
+            time.sleep(1)
+            page.focus('div[role="textbox"]')
+            
+            # 3. TYPE: Human-like speed
+            print("⌨️ Typing content...")
+            page.keyboard.type(idea_content, delay=70)
             time.sleep(2)
             
-            # Get snapshot to find text field
-            snapshot = self.browser.snapshot(refs="aria")
+            # 4. CLICK POST
+            print("🖱️ Clicking Post...")
+            post_btn = page.locator('[data-testid="tweetButton"], [data-testid="tweetButtonInline"]').first
             
-            # Find text input (usually ref=e84 or similar for post text)
-            # Type the content
-            self.browser.type(text=idea_content)
-            time.sleep(1)
+            if post_btn.is_visible():
+                post_btn.click()
+            else:
+                print("⚠️ Button not visible, using Ctrl+Enter...")
+                page.keyboard.press("Control+Enter")
             
-            # Click post button
-            self.browser.click()
-            
-            # Wait for post to complete
-            time.sleep(3)
-            
-            # Mark as posted
+            time.sleep(5)
             self._mark_posted(idea_id)
             
-            return {
-                "status": "success",
-                "message": f"Posted: {idea_content[:50]}...",
-                "idea_id": idea_id,
-                "timestamp": datetime.now().isoformat()
-            }
+            return {"status": "success", "message": "Post complete!"}
             
         except Exception as e:
-            return {
-                "status": "error",
-                "message": f"Failed to post: {str(e)}",
-                "idea_id": idea_id
-            }
-    
+            print(f"❌ Error in poster.py: {e}")
+            return {"status": "error", "message": str(e)}
+
     def _mark_posted(self, idea_id):
         """Mark idea as posted in database"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        
         cursor.execute('''
             UPDATE post_ideas 
             SET posted = 1 
             WHERE id = ?
         ''', (idea_id,))
-        
         conn.commit()
         conn.close()
-    
+
     def schedule_post(self, idea_id, scheduled_time):
-        """Schedule post for later (via cron or scheduler)"""
+        """Schedule post for later"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS scheduled_posts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -91,45 +89,30 @@ class TwitterPoster:
                 FOREIGN KEY(idea_id) REFERENCES post_ideas(id)
             )
         ''')
-        
         cursor.execute('''
             INSERT INTO scheduled_posts (idea_id, scheduled_time)
             VALUES (?, ?)
         ''', (idea_id, scheduled_time))
-        
         conn.commit()
         conn.close()
-        
         return f"Post scheduled for {scheduled_time}"
-    
+
     def auto_reply_to_comments(self, tweet_url, reply_template):
-        """
-        Auto-reply to early comments (algorithm boost)
-        Should be done within first hour of posting
-        """
+        """Auto-reply to early comments"""
         if not self.browser:
             return {"status": "error", "message": "Browser not configured"}
-        
         try:
-            # Open tweet
-            self.browser.open(tweet_url)
+            page = self.browser.get_page()
+            page.goto(tweet_url)
             time.sleep(2)
-            
-            # Find replies (would need to identify reply links)
-            # For each reply, post a reply using reply_template
-            
-            return {
-                "status": "success",
-                "message": "Replies posted to boost engagement"
-            }
+            return {"status": "success", "message": "Replies logic placeholder"}
         except Exception as e:
             return {"status": "error", "message": str(e)}
-    
+
     def get_posting_history(self):
         """Get history of posted ideas"""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
-        
         cursor.execute('''
             SELECT id, title, content, score, posted
             FROM post_ideas
@@ -137,45 +120,9 @@ class TwitterPoster:
             ORDER BY id DESC
             LIMIT 20
         ''')
-        
         results = cursor.fetchall()
         conn.close()
-        
         return [
-            {
-                "id": r[0],
-                "title": r[1],
-                "content": r[2],
-                "score": r[3],
-            }
+            {"id": r[0], "title": r[1], "content": r[2], "score": r[3]}
             for r in results
         ]
-
-# Manual posting guide
-MANUAL_POST_GUIDE = """
-🐦 MANUAL TWITTER POSTING GUIDE
-
-Since Twitter API access is restricted, here's how to post manually with browser automation:
-
-1. Use the browser tool to navigate to https://x.com/compose/post
-2. Type your post content
-3. Click the "Post" button
-4. Wait 3 seconds for confirmation
-
-Example code:
-    browser.open("https://x.com/compose/post")
-    browser.type(text=idea_content)
-    browser.click()  # Click Post button
-
-For scheduling posts later:
-- Use OpenClaw's cron feature to trigger posts at specific times
-- Set up a cron job to call this script at optimal posting times
-
-For engagement tracking:
-- Use Twitter Analytics or create a manual tracking sheet
-- Note likes, RTs, replies in the database
-- Analyze engagement patterns weekly
-"""
-
-if __name__ == "__main__":
-    print(MANUAL_POST_GUIDE)

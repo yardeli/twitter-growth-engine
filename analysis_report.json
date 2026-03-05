@@ -1,0 +1,48 @@
+{
+  "hooks": {
+    "most_common": [
+      {
+        "hook": "Built a /year business from my laptop. AMA.",
+        "count": 1
+      },
+      {
+        "hook": "Technology is the greatest lever for human progres",
+        "count": 1
+      },
+      {
+        "hook": "The key to making good decisions is understanding ",
+        "count": 1
+      },
+      {
+        "hook": "The best education is learning from people you res",
+        "count": 1
+      }
+    ],
+    "hook_types": {
+      "question": 0,
+      "statement": 3,
+      "number": 0,
+      "contrarian": 0
+    }
+  },
+  "length": {
+    "avg_length": 55.0,
+    "min_length": 43,
+    "max_length": 69,
+    "most_common_range": "43-69 characters"
+  },
+  "formatting": {
+    "threads": 0,
+    "lists": 0,
+    "emojis": 0,
+    "line_breaks": 0
+  },
+  "topics": {
+    "business": 1
+  },
+  "engagement_patterns": {
+    "avg_retweet_ratio": 0.26,
+    "avg_reply_ratio": 0.09,
+    "high_reply_tweets": []
+  }
+}
